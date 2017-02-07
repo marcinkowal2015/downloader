@@ -1,6 +1,7 @@
 const program = require("commander"),
     querystring = require('querystring'),
-    http = require("http");
+    http = require("http"),
+    konto = require("./requests/konto");
 
 program.version("0.0.1")
     .option("-l, --login [name]", "login")
@@ -30,11 +31,12 @@ const options = {
 
 const req = http.request(options, res => {
     console.log(`STATUS: ${res.statusCode}`);
-    console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-    res.setEncoding('utf8');
-    res.on('data', (chunk) => {
-        console.log(`BODY: ${chunk}`);
-    });
+    console.log(res.headers);
+    console.log(res.headers["set-cookie"]);
+    konto.getKontoPage(program.host, res.headers["set-cookie"]);
+    res.on('end', data => {
+        console.log(data);
+    })
 });
 
 req.on('error', (e) => {
